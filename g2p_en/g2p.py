@@ -322,7 +322,7 @@ class G2p(object):
         preds = [self.idx2p.get(idx, "<unk>") for idx in preds]
         return preds
 
-    def __call__(self, text):
+    def __call__(self, text, overrides=None):
         # preprocessing
         text = unicode(text)
         text = normalize_numbers(text)
@@ -340,6 +340,11 @@ class G2p(object):
         words = tokenizer.tokenize(text)
         tokens = pos_tag(words)  # tuples of (word, tag)
         prons = []
+        if overrides is not None:
+            cmu = dict(self.cmu)
+            cmu.update(overrides)
+        else:
+            cmu = self.cmu
         for word, pos in tokens:
             if re.search("[a-z]", word) is None:
                 pron = [word]
@@ -350,8 +355,8 @@ class G2p(object):
                     pron = pron1
                 else:
                     pron = pron2
-            elif word in self.cmu:  # lookup CMU dict
-                pron = self.cmu[word][0]
+            elif word in cmu:  # lookup CMU dict
+                pron = cmu[word][0]
             else:  # predict for oov
                 pron = self.predict(word)
 
