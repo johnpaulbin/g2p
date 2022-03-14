@@ -380,8 +380,8 @@ class G2p(object):
                     pron = self.predict(word)
                     
 
-        prons.extend(pron)
-        prons.extend([" "])
+            prons.extend(pron)
+            prons.extend([" "])
 
         return prons[:-1]
 
