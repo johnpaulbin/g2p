@@ -342,7 +342,9 @@ class G2p(object):
 
         # tokenization
         words = tokenizer.tokenize(text)
-        tokens = pos_tag(words)  # tuples of (word, tag)
+        print(words)
+        tokens = words
+        #tokens = pos_tag(words)  # tuples of (word, tag)
         prons = []
         if overrides is not None:
             cmu = dict(self.cmu)
@@ -350,24 +352,22 @@ class G2p(object):
         else:
             cmu = self.cmu
 
-        for word, pos in tokens:
+        for word in tokens:
             if re.search("[a-z]", word) is None:
                 pron = [word]
 
             elif word in cmu:  # lookup CMU dict
                 pron = cmu[word][0]
                 
-            elif word in self.homograph2features:  # Check homograph
-                pron1, pron2, pos1 = self.homograph2features[word]
-                if pos.startswith(pos1):
-                    pron = pron1
-                else:
-                    pron = pron2
+            #elif word in self.homograph2features:  # Check homograph
+            #    pron1, pron2, pos1 = self.homograph2features[word]
+            #    if pos.startswith(pos1):
+            #        pron = pron1
+            #    else:
+            #        pron = pron2
             
             else:  # predict for oov
                 try:
-                    pron = self.predict(word)
-                except:
                     word = "".join(
                         char
                         for char in unicodedata.normalize("NFD", word)
@@ -375,6 +375,9 @@ class G2p(object):
                     )  # Strip accents
                     word = re.sub("[^ a-z'.,?!\-]", "", word)
                     pron = self.predict(word)
+                except:
+                    pron = self.predict(word)
+                    
 
         prons.extend(pron)
         prons.extend([" "])
