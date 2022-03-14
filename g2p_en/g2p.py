@@ -336,7 +336,7 @@ class G2p(object):
             if unicodedata.category(char) != "Mn"
         )  # Strip accents
         text = text.lower()
-        text = re.sub("[^ a-z'.,?!\-]", "", text)
+        #text = re.sub("[^ a-z'.,?!\-]", "", text)
         text = text.replace("i.e.", "that is")
         text = text.replace("e.g.", "for example")
 
@@ -366,7 +366,7 @@ class G2p(object):
                 try:
                     pron = self.predict(word)
                 except:
-                    pron = self.check() #### to do
+                    pron = [word]
 
         prons.extend(pron)
         prons.extend([" "])
