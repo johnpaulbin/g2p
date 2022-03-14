@@ -354,19 +354,27 @@ class G2p(object):
             if re.search("[a-z]", word) is None:
                 pron = [word]
 
+            elif word in cmu:  # lookup CMU dict
+                pron = cmu[word][0]
+                
             elif word in self.homograph2features:  # Check homograph
                 pron1, pron2, pos1 = self.homograph2features[word]
                 if pos.startswith(pos1):
                     pron = pron1
                 else:
                     pron = pron2
-            elif word in cmu:  # lookup CMU dict
-                pron = cmu[word][0]
+            
             else:  # predict for oov
                 try:
                     pron = self.predict(word)
                 except:
-                    pron = [word]
+                    word = "".join(
+                        char
+                        for char in unicodedata.normalize("NFD", word)
+                        if unicodedata.category(char) != "Mn"
+                    )  # Strip accents
+                    word = re.sub("[^ a-z'.,?!\-]", "", word)
+                    pron = self.predict(word)
 
         prons.extend(pron)
         prons.extend([" "])
