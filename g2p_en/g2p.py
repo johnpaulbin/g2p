@@ -341,8 +341,9 @@ class G2p(object):
         text = text.replace("e.g.", "for example")
 
         # tokenization
-        words = tokenizer.tokenize(text)
-        print(words)
+        #words = tokenizer.tokenize(text)
+        words = text.split()
+        #print(words)
         tokens = words
         #tokens = pos_tag(words)  # tuples of (word, tag)
         prons = []
