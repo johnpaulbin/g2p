@@ -345,23 +345,30 @@ class G2p(object):
             cmu.update(overrides)
         else:
             cmu = self.cmu
-        for word, pos in tokens:
-            if re.search("[a-z]", word) is None:
-                pron = [word]
+        try:
+            for word, pos in tokens:
+                if re.search("[a-z]", word) is None:
+                    pron = [word]
 
-            elif word in self.homograph2features:  # Check homograph
-                pron1, pron2, pos1 = self.homograph2features[word]
-                if pos.startswith(pos1):
-                    pron = pron1
-                else:
-                    pron = pron2
-            elif word in cmu:  # lookup CMU dict
-                pron = cmu[word][0]
-            else:  # predict for oov
-                pron = self.predict(word)
-
+                elif word in self.homograph2features:  # Check homograph
+                    pron1, pron2, pos1 = self.homograph2features[word]
+                    if pos.startswith(pos1):
+                        pron = pron1
+                    else:
+                        pron = pron2
+                elif word in cmu:  # lookup CMU dict
+                    pron = cmu[word][0]
+                else:  # predict for oov
+                    pron = self.predict(word)
+                    
             prons.extend(pron)
             prons.extend([" "])
+            
+        except:        
+            for txt in text.split(" "):
+                if txt in cmu:
+                    prons.extend(cmu[txt][0])
+                    prons.extend([" "])
 
         return prons[:-1]
 
