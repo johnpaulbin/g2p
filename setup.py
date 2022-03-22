@@ -26,7 +26,7 @@ setup(
     'nltk>=3.2.4',
     'inflect>=0.3.1',
     'distance>=0.1.3',
-    'uberduct@git+https://github.com/johnpaulbin/uberduct.git',
+    'uberduct@git+https://github.com/johnpaulbin/uberduct.git#egg=uberduct',
   ],
   license='Apache Software License',
   include_package_data=True
