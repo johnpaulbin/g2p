@@ -91,7 +91,6 @@ class CMUDictTokenizer(TweetTokenizer):
 
     def tokenize(self, text: str) -> List[str]:
         """Tokenize the input text.
-
         :param text: str
         :rtype: list(str)
         :return: a tokenized list of strings; joining this list returns\
@@ -322,63 +321,43 @@ class G2p(object):
         preds = [self.idx2p.get(idx, "<unk>") for idx in preds]
         return preds
 
-    def check(self, text):
-        if text in self.cmu:
-            return self.cmu[text][0]
-    
     def __call__(self, text, overrides=None):
         # preprocessing
         text = unicode(text)
         text = normalize_numbers(text)
-        #text = "".join(
-        #    char
-        #    for char in unicodedata.normalize("NFD", text)
-        #    if unicodedata.category(char) != "Mn"
-        #)  # Strip accents
+        text = "".join(
+            char
+            for char in unicodedata.normalize("NFD", text)
+            if unicodedata.category(char) != "Mn"
+        )  # Strip accents
         text = text.lower()
-        #text = re.sub("[^ a-z'.,?!\-]", "", text)
+        text = re.sub("[^ a-z'.,?!\-]", "", text)
         text = text.replace("i.e.", "that is")
         text = text.replace("e.g.", "for example")
 
         # tokenization
-        #words = tokenizer.tokenize(text)
-        words = text.split()
-        #print(words)
-        tokens = words
-        #tokens = pos_tag(words)  # tuples of (word, tag)
+        words = tokenizer.tokenize(text)
+        tokens = pos_tag(words)  # tuples of (word, tag)
         prons = []
         if overrides is not None:
             cmu = dict(self.cmu)
             cmu.update(overrides)
         else:
             cmu = self.cmu
-
-        for word in tokens:
+        for word, pos in tokens:
             if re.search("[a-z]", word) is None:
                 pron = [word]
 
+            elif word in self.homograph2features:  # Check homograph
+                pron1, pron2, pos1 = self.homograph2features[word]
+                if pos.startswith(pos1):
+                    pron = pron1
+                else:
+                    pron = pron2
             elif word in cmu:  # lookup CMU dict
                 pron = cmu[word][0]
-                
-            #elif word in self.homograph2features:  # Check homograph
-            #    pron1, pron2, pos1 = self.homograph2features[word]
-            #    if pos.startswith(pos1):
-            #        pron = pron1
-            #    else:
-            #        pron = pron2
-            
             else:  # predict for oov
-                try:
-                    word = "".join(
-                        char
-                        for char in unicodedata.normalize("NFD", word)
-                        if unicodedata.category(char) != "Mn"
-                    )  # Strip accents
-                    word = re.sub("[^ a-z'.,?!\-]", "", word)
-                    pron = self.predict(word)
-                except:
-                    pron = self.predict(word)
-                    
+                pron = self.predict(word)
 
             prons.extend(pron)
             prons.extend([" "])
